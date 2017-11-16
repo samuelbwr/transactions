@@ -1,23 +1,22 @@
 package com.ntwentysix.transactionsSummary;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ntwentysix.statistics.StatisticsDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
 @Setter
 @Getter
 @ToString
+@Accessors(chain = true)
 public class TransactionSummary {
     private BigDecimal sum;
-    @JsonIgnore
     private List<BigDecimal> amounts;
 
     private TransactionSummary() {
@@ -30,35 +29,29 @@ public class TransactionSummary {
         return transactionSummary;
     }
 
-    public synchronized void removeAmount(BigDecimal amount) {
-        this.sum = this.sum.subtract( amount );
-        amounts.remove( amount );
-        Collections.sort( this.amounts );
-    }
-
-    public synchronized void addAmount(BigDecimal amount) {
-        this.sum = this.sum.add( amount );
-        this.amounts.add( amount );
-        Collections.sort( this.amounts );
-    }
-
-    @JsonProperty
     public BigDecimal getMax() {
-        return amounts.get( amounts.size() - 1 );
+        if(amounts.size() > 0)
+            return amounts.get( amounts.size() - 1 );
+        return BigDecimal.ZERO;
     }
 
-    @JsonProperty
     public BigDecimal getMin() {
-        return amounts.get( 0 );
+        if(amounts.size() > 0)
+            return amounts.get( 0 );
+        return BigDecimal.ZERO;
     }
 
-    @JsonProperty
     public BigDecimal getAvg() {
-        return this.sum.divide( BigDecimal.valueOf( this.amounts.size() ), BigDecimal.ROUND_HALF_DOWN );
+        if (amounts.size() > 0)
+            return this.sum.divide( BigDecimal.valueOf( this.amounts.size() ), BigDecimal.ROUND_HALF_DOWN );
+        return BigDecimal.ZERO;
     }
 
-    @JsonProperty
     public int getCount() {
         return this.amounts.size();
+    }
+
+    public StatisticsDTO asStatistic() {
+        return new StatisticsDTO( sum, getAvg(), getMax(), getMin(), getCount() );
     }
 }
