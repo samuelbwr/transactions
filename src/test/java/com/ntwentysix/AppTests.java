@@ -1,4 +1,4 @@
-package com.ntwentysix.transactions;
+package com.ntwentysix;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
