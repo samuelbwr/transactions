@@ -10,7 +10,7 @@ import java.util.concurrent.DelayQueue;
 
 @Component
 @Getter
-public class DelayQueueHolder {
+public class DelayQueueContext {
     private BlockingQueue<Transaction> queue;
 
     @PostConstruct

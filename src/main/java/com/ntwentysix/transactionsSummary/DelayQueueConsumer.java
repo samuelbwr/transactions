@@ -8,17 +8,17 @@ import org.springframework.stereotype.Component;
 public class DelayQueueConsumer implements Runnable {
 
     @Autowired
-    private DelayQueueHolder delayQueueHolder;
+    private DelayQueueContext delayQueueContext;
 
     @Autowired
     private TransactionsSummaryService transactionsSummaryService;
 
     @Override
     public void run() {
-        while (!delayQueueHolder.getQueue().isEmpty())
+        while (!delayQueueContext.getQueue().isEmpty())
             try {
-                Transaction object = delayQueueHolder.getQueue().take();
-                transactionsSummaryService.getActiveInstance().update( object.getAmount() );
+                Transaction object = delayQueueContext.getQueue().take();
+                transactionsSummaryService.getActiveInstance().removeAmount( object.getAmount() );
 
                 System.out.println( "Consumer take: " + object + " at: " + System.currentTimeMillis() );
                 System.out.println( "Summary is: " + transactionsSummaryService.getActiveInstance() );
