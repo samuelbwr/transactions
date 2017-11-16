@@ -1,4 +1,4 @@
-package com.ntwentysix.transactionsSummary;
+package com.ntwentysix.transactionsSummary.delayQueue;
 
 import com.ntwentysix.transactions.Transaction;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import java.util.concurrent.DelayQueue;
 
 @Component
 @Getter
-public class DelayQueueContext {
+public class DelayQueueStateHolder {
     private BlockingQueue<Transaction> queue;
 
     @PostConstruct
