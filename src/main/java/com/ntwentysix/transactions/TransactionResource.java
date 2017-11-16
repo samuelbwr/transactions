@@ -1,27 +1,24 @@
 package com.ntwentysix.transactions;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-@Component
-@Path("/transactions")
+@RestController
+@RequestMapping("/transactions")
 public class TransactionResource {
 
     @Autowired
     private TransactionService transactionService;
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response insertTransaction(Transaction transaction) throws InterruptedException {
-        transactionService.insertTransaction( transaction );
-        if (transaction.getTimestamp() < (System.currentTimeMillis() - 60000))
-            return Response.status( Response.Status.NO_CONTENT ).build();
-        return Response.status( Response.Status.CREATED ).build();
+    @RequestMapping(method = RequestMethod.POST)
+    public ResponseEntity insertTransaction(@RequestBody Transaction transaction) {
+        if (transactionService.saveAndComputeToSummaryIfInPeriod( transaction ))
+            return ResponseEntity.status( HttpStatus.CREATED ).build();
+        return ResponseEntity.status( HttpStatus.NO_CONTENT ).build();
     }
 }

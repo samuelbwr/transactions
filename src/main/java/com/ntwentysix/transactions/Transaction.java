@@ -1,15 +1,9 @@
 package com.ntwentysix.transactions;
 
-import jersey.repackaged.com.google.common.primitives.Ints;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.Accessors;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
@@ -19,10 +13,11 @@ import java.util.concurrent.TimeUnit;
 @Setter
 @ToString
 @Entity
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
+@Accessors(chain = true)
 public class Transaction implements Delayed {
     private static final int MINUTE = 60000;
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -30,19 +25,17 @@ public class Transaction implements Delayed {
     private BigDecimal amount;
     private Long timestamp;
 
+    @Transient
+    private long delay;
+
     @Override
     public long getDelay(TimeUnit unit) {
-        long diff = (timestamp - System.currentTimeMillis())+MINUTE;
-        System.out.println("DIff; "+diff);
-        return unit.convert( diff, TimeUnit.MILLISECONDS );
+        return unit.convert( delay, TimeUnit.MILLISECONDS );
     }
 
     @Override
     public int compareTo(Delayed o) {
-        return Ints.saturatedCast( this.timestamp - ((Transaction) o).timestamp );
+        return Long.valueOf( this.timestamp - ((Transaction) o).timestamp ).intValue();
     }
 
-    public boolean shouldBeAddedToQueue() {
-        return (System.currentTimeMillis() - timestamp) < MINUTE;
-    }
 }

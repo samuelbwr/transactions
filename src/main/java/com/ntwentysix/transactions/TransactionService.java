@@ -13,8 +13,9 @@ public class TransactionService {
     @Autowired
     private TransactionsSummaryService transactionsSummaryService;
 
-    public void insertTransaction(Transaction transaction) throws InterruptedException {
+    public boolean saveAndComputeToSummaryIfInPeriod(Transaction transaction) {
+        long now = System.currentTimeMillis();
         transactionRepository.save( transaction );
-        transactionsSummaryService.addTransaction( transaction );
+        return transactionsSummaryService.computeTransactionIfInPeriod( transaction, now );
     }
 }
